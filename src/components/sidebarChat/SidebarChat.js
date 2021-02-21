@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import db from "../../firebase";
 import { useStateValue } from "../contextapi/StateProvider";
 
+
 function SidebarChat({ id, name }) {
   const [seed, setSeed] = useState("");
   const [messages, setMessages] = useState("");

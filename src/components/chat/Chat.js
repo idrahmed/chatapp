@@ -15,9 +15,6 @@ function Chat() {
   const [messages, setMessages] = useState([]);
   const [{ user }, dispatch] = useStateValue();
 
-  console.log(messages);
-  console.log(user.uid);
-
   useEffect(() => {
     if (roomId) {
       db.collection("users")
