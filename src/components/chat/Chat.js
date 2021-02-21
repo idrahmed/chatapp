@@ -15,16 +15,19 @@ function Chat() {
   const [messages, setMessages] = useState([]);
   const [{ user }, dispatch] = useStateValue();
 
-  const userName = user.displayName.split(" ")[0];
   console.log(messages);
+  console.log(user.uid);
 
   useEffect(() => {
     if (roomId) {
-      db.collection("rooms")
+      db.collection("users")
+        .doc(user.uid)
+        .collection("rooms")
         .doc(roomId)
-        .onSnapshot((snapshot) => setRoomName(snapshot.data().name));
+        .onSnapshot((snapshot) => setRoomName(snapshot.data()?.name));
 
-      db.collection("rooms")
+      db.collection("users")
+      .doc(user.uid).collection("rooms")
         .doc(roomId)
         .collection("messages")
         .orderBy("timestamp", "asc")
@@ -32,14 +35,15 @@ function Chat() {
           setMessages(snapshot.docs.map((doc) => doc.data()));
         });
     }
-  }, [roomId]);
+  }, [roomId, user.uid]);
 
   useEffect(() => {
     setSeed(Math.floor(Math.random() * 5000));
   }, []);
 
   function sendMessage(text) {
-    db.collection("rooms").doc(roomId).collection("messages").add({
+    db.collection("users")
+    .doc(user.uid).collection("rooms").doc(roomId).collection("messages").add({
       message: text,
       name: user.displayName,
       timestamp: firebase.firestore.FieldValue.serverTimestamp(),
@@ -49,7 +53,9 @@ function Chat() {
   return (
     <div className="chat">
       <div className="chat_header">
-        <Avatar src={`https://avatars.dicebear.com/api/human/${seed}.svg`} />
+        {roomId && (
+          <Avatar src={`https://avatars.dicebear.com/api/human/${seed}.svg`} />
+        )}
 
         <div className="chat_headerInfo">
           <h3>{roomName}</h3>
@@ -69,10 +75,10 @@ function Chat() {
         {messages.map((message) => (
           <p
             className={`chat_message ${
-              message.name == user.displayName && "chat_receiver"
+              message.name === user.displayName && "chat_receiver"
             }`}
           >
-            <span className="chat_name">{userName}</span>
+            <span className="chat_name">{message.name.split(" ")[0]}</span>
             {message.message}
           </p>
         ))}

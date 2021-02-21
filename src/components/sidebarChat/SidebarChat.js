@@ -3,14 +3,18 @@ import React, { useEffect, useState } from "react";
 import "./sidebarChat.css";
 import { Link } from "react-router-dom";
 import db from "../../firebase";
+import { useStateValue } from "../contextapi/StateProvider";
 
 function SidebarChat({ id, name }) {
   const [seed, setSeed] = useState("");
   const [messages, setMessages] = useState("");
+  const [{ user }, dispatch] = useStateValue();
 
   useEffect(() => {
     if (id) {
-      db.collection("rooms")
+      db.collection("users")
+      .doc(user.uid)
+      .collection("rooms")
         .doc(id)
         .collection("messages")
         .orderBy("timestamp", "desc")
@@ -18,7 +22,7 @@ function SidebarChat({ id, name }) {
           setMessages(snapshot.docs.map((doc) => doc.data()));
         });
     }
-  }, [id]);
+  }, [id, user.uid]);
 
   useEffect(() => {
     setSeed(Math.floor(Math.random() * 5000));

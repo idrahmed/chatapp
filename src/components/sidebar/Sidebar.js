@@ -11,7 +11,9 @@ function Sidebar() {
   const [{user}, dispatch] = useStateValue()
 
   useEffect(() => {
-    const unsubscribe = db.collection("rooms").onSnapshot((snapshot) =>
+    const unsubscribe = db.collection("users")
+    .doc(user.uid)
+    .collection("rooms").onSnapshot((snapshot) =>
       setRooms(
         snapshot.docs.map((doc) => ({
           id: doc.id,
@@ -22,12 +24,14 @@ function Sidebar() {
     return () => {
         unsubscribe()
     }
-  }, []);
+  }, [user.uid]);
 
   const createChat = () => {
     const roomName = prompt('Enter a name for chat')
     if (roomName) {
-      db.collection('rooms').add({
+      db.collection("users")
+      .doc(user.uid)
+      .collection('rooms').add({
           name: roomName
       })
     }
